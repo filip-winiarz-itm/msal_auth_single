@@ -29,13 +29,11 @@
         <activity android:name="com.microsoft.identity.client.BrowserTabActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data
-                    android:host="com.example.msal_auth_example"
-                    android:path="/<BASE64_ENCODED_PACKAGE_SIGNATURE>"
+                    android:host="com.itm.employeemobile.dev"
+                    android:path="/hEy2hHhtHed9Ljx9u+NVyT7JlUE="
                     android:scheme="msauth" />
             </intent-filter>
         </activity>

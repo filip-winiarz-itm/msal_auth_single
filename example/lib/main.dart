@@ -15,8 +15,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _clientId = '<CLIENT_ID>';
-  final _tenantId = '<TENANT_ID>';
+  final _clientId = '4c8dcc0b-5571-49a4-9ba7-d75efd598c9c';
+  final _tenantId = '2eae550a-d084-4896-be28-142608be4414';
   late final _authority =
       'https://login.microsoftonline.com/$_tenantId/oauth2/v2.0/authorize';
   final _scopes = <String>[

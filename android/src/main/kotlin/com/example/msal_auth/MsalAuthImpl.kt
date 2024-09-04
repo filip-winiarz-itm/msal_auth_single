@@ -6,7 +6,7 @@ import android.util.Log
 import com.microsoft.identity.client.AcquireTokenParameters
 import com.microsoft.identity.client.AcquireTokenSilentParameters
 import com.microsoft.identity.client.IAccount
-import com.microsoft.identity.client.IMultipleAccountPublicClientApplication
+import com.microsoft.identity.client.ISingleAccountPublicClientApplication
 import com.microsoft.identity.client.Prompt
 import com.microsoft.identity.client.PublicClientApplication
 import com.microsoft.identity.client.exception.MsalException
@@ -74,7 +74,7 @@ class MsalAuthImpl(private val msal: Msal) : MethodChannel.MethodCallHandler {
             return
         }
 
-        if (msal.accountList.isEmpty()) {
+        if (msal.currentAccount == null) {
             Handler(Looper.getMainLooper()).post {
                 result.error(
                     "AUTH_ERROR",
@@ -85,10 +85,9 @@ class MsalAuthImpl(private val msal: Msal) : MethodChannel.MethodCallHandler {
             return
         }
 
-        msal.clientApplication.removeAccount(
-            msal.accountList.first(),
-            object : IMultipleAccountPublicClientApplication.RemoveAccountCallback {
-                override fun onRemoved() {
+        msal.clientApplication.signOut(
+            object : ISingleAccountPublicClientApplication.SignOutCallback {
+                override fun onSignOut() {
                     Thread { msal.loadAccounts(result) }.start()
                 }
 
@@ -117,7 +116,7 @@ class MsalAuthImpl(private val msal: Msal) : MethodChannel.MethodCallHandler {
         }
 
         // ensures that accounts are exist
-        if (msal.accountList.isEmpty()) {
+        if (msal.currentAccount == null) {
             Handler(Looper.getMainLooper()).post {
                 result.error(
                     "AUTH_ERROR",
@@ -128,7 +127,7 @@ class MsalAuthImpl(private val msal: Msal) : MethodChannel.MethodCallHandler {
             return
         }
 
-        val selectedAccount: IAccount = msal.accountList.first()
+        val selectedAccount: IAccount = msal.currentAccount!!
         // acquire the token and return the result
         scopes.map { s -> s.lowercase(Locale.ROOT) }.toTypedArray()
 
@@ -158,8 +157,8 @@ class MsalAuthImpl(private val msal: Msal) : MethodChannel.MethodCallHandler {
         }
 
         //remove old accounts
-        while (msal.clientApplication.accounts.any())
-            msal.clientApplication.removeAccount(msal.clientApplication.accounts.first())
+//        if (msal.clientApplication.accounts.any())
+//            msal.clientApplication.removeAccount(msal.clientApplication.accounts.first())
 
 
         //acquire the token
@@ -186,7 +185,7 @@ class MsalAuthImpl(private val msal: Msal) : MethodChannel.MethodCallHandler {
             return
         }
 
-        PublicClientApplication.createMultipleAccountPublicClientApplication(
+        PublicClientApplication.createSingleAccountPublicClientApplication(
             msal.applicationContext,
             File(configFilePath!!),
             msal.getApplicationCreatedListener(result)
